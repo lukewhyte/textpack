@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/Users/lwhyte/.virtualenvs/eviction-data-cleaning-0aqWBaa6/bin/python",
+    "python.pythonPath": "/Users/lukewhyte/.local/share/virtualenvs/evictions-zpyRWz1F/bin/python",
     "python.linting.pylintEnabled": false,
     "python.linting.pep8Enabled": true,
     "python.linting.enabled": true,

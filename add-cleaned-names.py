@@ -90,12 +90,22 @@ class ColumnGrouper():
         except AttributeError:
             print('You need to train the grouper before keys will exist')
 
-    def _get_best_group_for_row(self, value):
-        # Perhaps our keys need to be a series so we can do a vectorized search for the closest value
-        pass
+    def _compare_two_groups(self, best, group, value):
+        prox = self._matcher(value, group['key'])
+        if prox > best[1]:
+            best = (group['key'], prox)
+        return best
 
-    def add_grouped_column_to_df(self, column_name='group'):
-        self._df[column_name] = self._get_best_group_for_row(self._df[self._column])
+    def _get_best_group_for_row(self, value):
+        best = ('', 0)
+        for group in self._groups:
+            prox = self._matcher(value, group['key'])
+            if prox > best[1]:
+                best = (group['key'], prox)
+        return best[0]
+
+    def add_grouped_column_to_df(self, column_name='Group'):
+        self._df[column_name] = self._df.apply(lambda row: self._get_best_group_for_row(row[self._column]), axis=1)
 
 
 eviction_grouper = ColumnGrouper(
@@ -107,4 +117,6 @@ eviction_grouper = ColumnGrouper(
 
 eviction_grouper.train_grouper()
 
-# evictions['group'] = evictions['Plaintiff'].apply()
+eviction_grouper.add_grouped_column_to_df()
+
+print(eviction_grouper._df['Group'])
