@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 from functools import reduce
 from fuzzywuzzy import fuzz
@@ -6,12 +7,13 @@ import pdb
 
 
 class ColumnGrouper():
-    def __init__(self, csv_path, column_to_group, threshold, match_type):
+    def __init__(self, csv_path, column_to_group, threshold, match_type, export_path):
         self._df = pd.read_csv(csv_path)
         self._column = column_to_group
         self._threshold = threshold
         self._matcher = self._set_matcher(match_type)
         self._groups = None
+        self._export_path = export_path
 
     def _set_matcher(self, match_type):
         try:
@@ -19,74 +21,70 @@ class ColumnGrouper():
         except AttributeError:
             print(f'FuzzyWuzzy does not have the attribute: {match_type}. Read the docs here: https://chairnerd.seatgeek.com/fuzzywuzzy-fuzzy-string-matching-in-python/')
 
-    def _train_group(self, group):
+    def _train_group(self, key, groups):
         highest_prox = 0
-        for name in group['names']:
+        best_key = key
+        for name in groups[key]:
             prox = 0
-            for sibling in group['names']:
+            for sibling in groups[key]:
                 if sibling != name:
                     prox += self._matcher(name, sibling)
             if prox > highest_prox:
                 highest_prox = prox
-                group['key'] = name
+                best_key = name
+        groups[best_key] = groups.pop(key)
 
-    def _add_name_to_group(self, group, value):
-        group['names'].add(value)
-        self._train_group(group)
+    def _add_name_to_group(self, key, value, groups):
+        groups[key].add(value)
+        self._train_group(key, groups)
 
     def _add_new_group(self, groups, value):
-        groups.append({
-            'key': value,
-            'names': set([value]),
-        })
+        groups[value] = set([value])
 
     def _get_closest_match(self, matches, value):
         closest = None
         highest_prox = 0
-        for group in matches:
-            prox = self._matcher(value, group['key'])
+        for key, names in matches.items():
+            prox = self._matcher(value, key)
             if prox > highest_prox:
                 highest_prox = prox
-                closest = group
+                closest = key
         return closest
 
     def _find_matching_groups(self, groups, value):
-        return list(
-            filter(
-                lambda group: self._matcher(value, group['key']) > self._threshold,
-                groups
-            )
-        )
+        return {key: names for key, names in groups.items() if self._matcher(value, key) > self._threshold}
 
     def _determine_best_group(self, groups, value):
         matches = self._find_matching_groups(groups, value)
         if not matches:
             return None
-        elif len(matches) == 1:
-            return matches[0]
         else:
             return self._get_closest_match(matches, value)
 
+    def _clean_name(self, value):
+        return re.sub(r'[,-./]', r'', value).upper()
+
     def _build_groups(self, groups, value):
-        group = self._determine_best_group(groups, value)
-        if group is None:
+        value = self._clean_name(value)
+        key = self._determine_best_group(groups, value)
+        if key is None:
             self._add_new_group(groups, value)
-        elif value not in group['names']:
-            self._add_name_to_group(group, value)
+        elif value not in groups[key]:
+            self._add_name_to_group(key, value, groups)
         return groups
 
     def train_grouper(self):
-        self._groups = reduce(self._build_groups, self._df[self._column].to_list(), [])
+        self._groups = reduce(self._build_groups, self._df[self._column].unique().tolist(), {})
 
     def get_group_keys(self):
         try:
-            return [group['key'] for group in self._groups]
+            return list(self._groups.keys())
         except AttributeError:
             print('You need to train the grouper before keys will exist')
 
     def get_group_names(self, min_names_per_group=2):
         try:
-            return [group['names'] for group in self._groups if len(group['names']) >= min_names_per_group]
+            return [names for names in self._groups if len(names) >= min_names_per_group]
         except AttributeError:
             print('You need to train the grouper before keys will exist')
 
@@ -97,26 +95,36 @@ class ColumnGrouper():
         return best
 
     def _get_best_group_for_row(self, value):
+        value = self._clean_name(value)
+
+        if value in self._groups:
+            return value
+
         best = ('', 0)
-        for group in self._groups:
-            prox = self._matcher(value, group['key'])
+        for key in self.get_group_keys():
+            prox = self._matcher(value, key)
             if prox > best[1]:
-                best = (group['key'], prox)
+                best = (key, prox)
+
         return best[0]
 
     def add_grouped_column_to_df(self, column_name='Group'):
         self._df[column_name] = self._df.apply(lambda row: self._get_best_group_for_row(row[self._column]), axis=1)
 
+    def export_csv(self):
+        self._df.to_csv(self._export_path)
+
 
 eviction_grouper = ColumnGrouper(
-    csv_path='./data/evictions-test.csv',
+    csv_path='./data/evictions.csv',
     column_to_group='Plaintiff',
-    threshold=70,
-    match_type='token_sort_ratio'
+    threshold=75,
+    match_type='token_set_ratio',
+    export_path='./data/evictions-grouped.csv'
 )
 
 eviction_grouper.train_grouper()
 
 eviction_grouper.add_grouped_column_to_df()
 
-print(eviction_grouper._df['Group'])
+eviction_grouper.export_csv()

@@ -10,6 +10,11 @@ pep8 = "*"
 pandas = "*"
 fuzzywuzzy = "*"
 python-levenshtein = "*"
+sklearn = "*"
+sparse-dot-topn = "*"
+scipy = "*"
+numpy = "*"
+cython = "*"
 
 [requires]
 python_version = "3.7"
