@@ -12,6 +12,7 @@ sklearn = "*"
 scipy = "*"
 numpy = "*"
 cython = "*"
+sparse-dot-topn = "*"
 
 [requires]
 python_version = "3.7"
