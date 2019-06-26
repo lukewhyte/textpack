@@ -8,10 +8,7 @@ pep8 = "*"
 
 [packages]
 pandas = "*"
-fuzzywuzzy = "*"
-python-levenshtein = "*"
 sklearn = "*"
-sparse-dot-topn = "*"
 scipy = "*"
 numpy = "*"
 cython = "*"

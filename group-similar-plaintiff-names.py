@@ -2,65 +2,78 @@ import re
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
-from sparse_dot_topn import awesome_cossim_topn
 
 
-class ColumnGrouper():
-    def __init__(self, csv_path, column_to_group, match_threshold, top_n):
+class ColumnValueGrouper():
+    def __init__(self, csv_path, column_to_group, export_path, match_threshold=0.8, ngram_length=3):
         self._df = pd.read_csv(csv_path)
         self._column = column_to_group
         self._match_threshold = match_threshold
-        self._top_n = top_n
-        self._matrix = None
+        self._ngram_length = ngram_length
+        self._export_path = export_path
+        self._group_lookup = {}
 
-    def _ngrams_analyzer(self, string, n=3):
+    def _ngrams_analyzer(self, string):
         string = re.sub(r'[,-./]', r'', string)
-        ngrams = zip(*[string[i:] for i in range(n)])
+        ngrams = zip(*[string[i:] for i in range(self._ngram_length)])
         return [''.join(ngram) for ngram in ngrams]
 
     def _get_tf_idf_matrix(self):
         vectorizer = TfidfVectorizer(analyzer=self._ngrams_analyzer)
-        return vectorizer.fit_transform(self._df[self._column])
+        return vectorizer.fit_transform(self._df[self._column].unique())
 
-    def build_matrix(self):
+    def _get_cosine_matrix(self):
         tf_idf_matrix = self._get_tf_idf_matrix()
-        self._matrix = awesome_cossim_topn(tf_idf_matrix, tf_idf_matrix.transpose(), self._top_n, self._match_threshold)
+        return cosine_similarity(tf_idf_matrix, dense_output=False)
 
-def get_matches_df(sparse_matrix, name_vector, top=5700):
-    non_zeros = sparse_matrix.nonzero()
-    
-    print(sparse_matrix)
+    def _vals_are_siblings(self, y, x, prox):
+        return (x != y) and (prox > self._match_threshold)
 
-    sparserows = non_zeros[0]
-    sparsecols = non_zeros[1]
-    
-    if top:
-        nr_matches = top
-    else:
-        nr_matches = sparsecols.size
-    
-    left_side = np.empty([nr_matches], dtype=object)
-    right_side = np.empty([nr_matches], dtype=object)
-    similairity = np.zeros(nr_matches)
-    
-    for index in range(0, nr_matches):
-        left_side[index] = name_vector[sparserows[index]]
-        right_side[index] = name_vector[sparsecols[index]]
-        similairity[index] = sparse_matrix.data[index]
-    
-    return pd.DataFrame({'left_side': left_side,
-                          'right_side': right_side,
-                           'similairity': similairity})
+    def _find_group(self, y, x):
+        if y in self._group_lookup:
+            return self._group_lookup[y]
+        elif x in self._group_lookup:
+            return self._group_lookup[x]
+        else:
+            return None
+
+    def _add_vals_to_lookup(self, group, y, x):
+        self._group_lookup[y] = group
+        self._group_lookup[x] = group
+
+    def _add_pair_to_lookup(self, row, col, data):
+        if self._vals_are_siblings(row, col, data):
+            group = self._find_group(row, col)
+            if group is not None:
+                self._add_vals_to_lookup(group, row, col)
+            else:
+                self._add_vals_to_lookup(row, row, col)
+
+    def build_group_lookup(self):
+        print('Building the TF-IDF, Cosine & Coord matrices...')
+        coord_matrix = self._get_cosine_matrix().tocoo()
+
+        print('Building the group lookup. This could take a little while...')
+        vals = self._df[self._column].unique()
+        for row, col, data in zip(coord_matrix.row, coord_matrix.col, coord_matrix.data):
+            self._add_pair_to_lookup(vals[row], vals[col], data)
+
+    def add_grouped_column_to_data(self, column_name='Group'):
+        print('Adding grouped columns to data frame...')
+        self._df[column_name] = self._df[self._column].map(self._group_lookup).fillna(self._df[self._column])
+
+    def export_csv(self):
+        self._df.to_csv(self._export_path)
 
 
-eviction_grouper = ColumnGrouper(
-    csv_path='./data/evictions-test.csv',
+eviction_grouper = ColumnValueGrouper(
+    csv_path='./data/evictions.csv',
     column_to_group='Plaintiff',
-    match_threshold=0.7,
-    top_n=10,
+    export_path='./data/evictions-grouped.csv'
 )
 
-eviction_grouper.build_matrix()
-
-matches_df = get_matches_df(eviction_grouper._matrix, eviction_grouper._df['Plaintiff'])
+eviction_grouper.build_group_lookup()
+eviction_grouper.add_grouped_column_to_data()
+eviction_grouper.export_csv()

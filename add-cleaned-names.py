@@ -14,6 +14,8 @@ class ColumnGrouper():
         self._matcher = self._set_matcher(match_type)
         self._groups = None
         self._export_path = export_path
+        self._trained_rows = 0
+        self._grouped_rows = 0
 
     def _set_matcher(self, match_type):
         try:
@@ -71,6 +73,8 @@ class ColumnGrouper():
             self._add_new_group(groups, value)
         elif value not in groups[key]:
             self._add_name_to_group(key, value, groups)
+        self._trained_rows += 1
+        print(f'{self._trained_rows} rows trained')
         return groups
 
     def train_grouper(self):
@@ -106,6 +110,8 @@ class ColumnGrouper():
             if prox > best[1]:
                 best = (key, prox)
 
+        self._grouped_rows += 1
+        print(f'{self._grouped_rows} rows grouped')
         return best[0]
 
     def add_grouped_column_to_df(self, column_name='Group'):
@@ -119,8 +125,8 @@ eviction_grouper = ColumnGrouper(
     csv_path='./data/evictions.csv',
     column_to_group='Plaintiff',
     threshold=75,
-    match_type='token_set_ratio',
-    export_path='./data/evictions-grouped.csv'
+    match_type='token_sort_ratio',
+    export_path='./data/evictions-grouped-two.csv'
 )
 
 eviction_grouper.train_grouper()

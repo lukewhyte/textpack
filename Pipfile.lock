@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "70bb627d5c8f369adc6aa1b610c61a9a13e0d182a83c13d49fae1deb8c6c9bec"
+            "sha256": "457cb69893ca450f562c6014c048426d5f8ed91382b67c5d8a49ecee899fda36"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -49,14 +49,6 @@
             ],
             "index": "pypi",
             "version": "==0.29.10"
-        },
-        "fuzzywuzzy": {
-            "hashes": [
-                "sha256:5ac7c0b3f4658d2743aa17da53a55598144edbc5bee3c6863840636e6926f254",
-                "sha256:6f49de47db00e1c71d40ad16da42284ac357936fa9b66bea1df63fed07122d62"
-            ],
-            "index": "pypi",
-            "version": "==0.17.0"
         },
         "joblib": {
             "hashes": [
@@ -127,13 +119,6 @@
             ],
             "version": "==2.8.0"
         },
-        "python-levenshtein": {
-            "hashes": [
-                "sha256:033a11de5e3d19ea25c9302d11224e1a1898fe5abd23c61c7c360c25195e3eb1"
-            ],
-            "index": "pypi",
-            "version": "==0.12.0"
-        },
         "pytz": {
             "hashes": [
                 "sha256:303879e36b721603cc54604edcac9d20401bdbe31e1e4fdee5b9f98d5d31dfda",
@@ -197,15 +182,6 @@
             ],
             "index": "pypi",
             "version": "==0.0"
-        },
-        "sparse-dot-topn": {
-            "hashes": [
-                "sha256:2028d451d81cf5a73cf9d5fc56de35f80ac8dbd528a6abe3b723bec9c1adcc38",
-                "sha256:9505a3c194de5cc07a75260cfac7e33b9e4590ede858f2c443763f539c88386e",
-                "sha256:c8d2d045d187072c6a8d7e5d872f6d94c758a8e4eb1962c70e2c8316476261f4"
-            ],
-            "index": "pypi",
-            "version": "==0.2.5"
         }
     },
     "develop": {
