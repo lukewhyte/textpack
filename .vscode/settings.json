@@ -1,9 +1,0 @@
-{
-    "python.pythonPath": "/Users/lwhyte/.virtualenvs/eviction-data-cleaning-0aqWBaa6/bin/python",
-    "python.linting.pylintEnabled": false,
-    "python.linting.pep8Enabled": true,
-    "python.linting.enabled": true,
-    "python.linting.pep8Args": [
-        "--ignore=E501,E701"
-    ]
-}
