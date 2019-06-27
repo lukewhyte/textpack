@@ -5,11 +5,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sparse_dot_topn import awesome_cossim_topn
 
 
-class ColumnCleaner():
-    def __init__(self, df, column_to_group, match_threshold=0.75, ngram_length=3):
+class TextPack():
+    def __init__(self, df, column_to_groups, match_threshold=0.75, ngram_length=3):
         self.df = df
         self.group_lookup = {}
-        self._column = column_to_group
+        self._columns = column_to_groups
         self._match_threshold = match_threshold
         self._ngram_length = ngram_length
 
@@ -47,7 +47,7 @@ class ColumnCleaner():
 
     def build_group_lookup(self):
         try:
-            vals = self.df[self._column].unique()
+            vals = self.df[self._columns].unique()
         except ValueError:
             print('Is the stated column in your dataset?')
 
@@ -61,7 +61,7 @@ class ColumnCleaner():
 
     def add_grouped_column_to_data(self, column_name='Group'):
         print('Adding grouped columns to data frame...')
-        self.df[column_name] = self.df[self._column].map(self.group_lookup).fillna(self.df[self._column])
+        self.df[column_name] = self.df[self._columns].map(self.group_lookup).fillna(self.df[self._columns])
 
     def export_json(self, export_path=None):
         self.df.to_json(export_path)
@@ -70,13 +70,17 @@ class ColumnCleaner():
         self.df.to_csv(export_path)
 
 
-def read_df(df, column_to_group, match_threshold=0.75, ngram_length=3):
-    return ColumnCleaner(df, column_to_group, match_threshold, ngram_length)
+def read_json(json_path, column_to_groups, match_threshold=0.75, ngram_length=3):
+    return TextPack(pd.read_json(json_path), column_to_groups, match_threshold, ngram_length)
 
 
-def read_csv(csv_path, column_to_group, match_threshold=0.75, ngram_length=3):
-    return ColumnCleaner(pd.read_csv(csv_path), column_to_group, match_threshold, ngram_length)
+def read_excel(excel_path, column_to_groups, sheet_name=None, match_threshold=0.75, ngram_length=3):
+    return TextPack(pd.read_excel(excel_path), sheet_name, column_to_groups, match_threshold, ngram_length)
 
 
-def read_json(csv_path, column_to_group, match_threshold=0.75, ngram_length=3):
-    return ColumnCleaner(pd.read_json(csv_path), column_to_group, match_threshold, ngram_length)
+def read_df(df, column_to_groups, match_threshold=0.75, ngram_length=3):
+    return TextPack(df, column_to_groups, match_threshold, ngram_length)
+
+
+def read_csv(csv_path, column_to_groups, match_threshold=0.75, ngram_length=3):
+    return TextPack(pd.read_csv(csv_path), column_to_groups, match_threshold, ngram_length)
