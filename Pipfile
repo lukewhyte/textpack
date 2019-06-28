@@ -13,6 +13,7 @@ scipy = "*"
 numpy = "*"
 cython = "*"
 sparse-dot-topn = "*"
+kaggle = "*"
 
 [requires]
 python_version = "3.7"

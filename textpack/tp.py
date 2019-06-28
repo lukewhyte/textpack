@@ -6,12 +6,19 @@ from sparse_dot_topn import awesome_cossim_topn
 
 
 class TextPack():
-    def __init__(self, df, column_to_groups, match_threshold=0.75, ngram_length=3):
+    def __init__(self, df, columns_to_group, match_threshold=0.75, ngram_length=3):
         self.df = df
         self.group_lookup = {}
-        self._columns = column_to_groups
+        self._column = self._get_column(columns_to_group)
         self._match_threshold = match_threshold
         self._ngram_length = ngram_length
+
+    def _get_column(self, columns_to_group):
+        if ''.join(columns_to_group) in self.df.columns:
+            return ''.join(columns_to_group)
+        else:
+            self.df['textpackGrouper'] = self.df[columns_to_group.pop(0)].astype(str).str.cat(self.df[columns_to_group].astype(str))
+            return 'textpackGrouper'
 
     def _ngrams_analyzer(self, string):
         string = re.sub(r'[,-./]', r'', string)
@@ -46,10 +53,7 @@ class TextPack():
             self._add_vals_to_lookup(row, row, col)
 
     def build_group_lookup(self):
-        try:
-            vals = self.df[self._columns].unique()
-        except ValueError:
-            print('Is the stated column in your dataset?')
+        vals = self.df[self._column].unique()
 
         print('Building the TF-IDF, Cosine & Coord matrices...')
         coord_matrix = self._get_cosine_matrix(vals).tocoo()
@@ -61,26 +65,34 @@ class TextPack():
 
     def add_grouped_column_to_data(self, column_name='Group'):
         print('Adding grouped columns to data frame...')
-        self.df[column_name] = self.df[self._columns].map(self.group_lookup).fillna(self.df[self._columns])
+        self.df[column_name] = self.df[self._column].map(self.group_lookup).fillna(self.df[self._column])
 
-    def export_json(self, export_path=None):
-        self.df.to_json(export_path)
+    def run(self):
+        self.build_group_lookup()
+        self.add_grouped_column_to_data()
+        print('Ready for export')
+
+    def _filter_df_for_export(self):
+        return self.df.drop(columns=['textpackGrouper']) if 'textpackGrouper' in self.df.columns else self.df
+
+    def export_json(self, export_path=None, compression='infer'):
+        self._filter_df_for_export().to_json(export_path, compression)
 
     def export_csv(self, export_path=None):
-        self.df.to_csv(export_path)
+        self._filter_df_for_export().to_csv(export_path)
 
 
-def read_json(json_path, column_to_groups, match_threshold=0.75, ngram_length=3):
-    return TextPack(pd.read_json(json_path), column_to_groups, match_threshold, ngram_length)
+def read_json(json_path, columns_to_group, match_threshold=0.75, ngram_length=3):
+    return TextPack(pd.read_json(json_path), columns_to_group, match_threshold, ngram_length)
 
 
-def read_excel(excel_path, column_to_groups, sheet_name=None, match_threshold=0.75, ngram_length=3):
-    return TextPack(pd.read_excel(excel_path), sheet_name, column_to_groups, match_threshold, ngram_length)
+def read_excel(excel_path, columns_to_group, sheet_name=None, match_threshold=0.75, ngram_length=3):
+    return TextPack(pd.read_excel(excel_path), sheet_name, columns_to_group, match_threshold, ngram_length)
 
 
-def read_df(df, column_to_groups, match_threshold=0.75, ngram_length=3):
-    return TextPack(df, column_to_groups, match_threshold, ngram_length)
+def read_df(df, columns_to_group, match_threshold=0.75, ngram_length=3):
+    return TextPack(df, columns_to_group, match_threshold, ngram_length)
 
 
-def read_csv(csv_path, column_to_groups, match_threshold=0.75, ngram_length=3):
-    return TextPack(pd.read_csv(csv_path), column_to_groups, match_threshold, ngram_length)
+def read_csv(csv_path, columns_to_group, match_threshold=0.75, ngram_length=3):
+    return TextPack(pd.read_csv(csv_path), columns_to_group, match_threshold, ngram_length)
