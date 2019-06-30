@@ -75,11 +75,11 @@ class TextPack():
     def _filter_df_for_export(self):
         return self.df.drop(columns=['textpackGrouper']) if 'textpackGrouper' in self.df.columns else self.df
 
-    def export_json(self, export_path=None, compression='infer'):
-        self._filter_df_for_export().to_json(export_path, compression)
+    def export_json(self, export_path=None):
+        return self._filter_df_for_export().to_json(export_path)
 
     def export_csv(self, export_path=None):
-        self._filter_df_for_export().to_csv(export_path)
+        return self._filter_df_for_export().to_csv(export_path)
 
 
 def read_json(json_path, columns_to_group, match_threshold=0.75, ngram_length=3):
