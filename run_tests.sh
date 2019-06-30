@@ -8,4 +8,4 @@ fi
 python -m unittest discover -s textpack/tests
 
 # Delete the craigslistVehicles file (1.1GB)
-# rm -rf textpack/tests/craigslistVehicles.csv
+rm -rf textpack/tests/craigslistVehicles.csv

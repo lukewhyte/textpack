@@ -31,6 +31,8 @@ class TestTextPack(unittest.TestCase):
         cl_vehicles.run()
 
         expected = 'https://youngstown.craigslist.org/ctd/d/youngstown-2018-kia-forte-lx-sedan-4d/6886405952.html'
+
+        print('Loading JSON, hold fast...')
         result = json.loads(cl_vehicles.export_json())['url']['439513']
 
         self.assertEqual(expected, result)
