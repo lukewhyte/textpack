@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pep8 = "*"
+pylint = "*"
 
 [packages]
 pandas = "*"
