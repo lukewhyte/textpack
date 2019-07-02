@@ -6,11 +6,12 @@ from sparse_dot_topn import awesome_cossim_topn
 
 
 class TextPack():
-    def __init__(self, df, columns_to_group, match_threshold=0.75, ngram_length=3):
+    def __init__(self, df, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
         self.df = df
         self.group_lookup = {}
         self._column = self._get_column(columns_to_group)
         self._match_threshold = match_threshold
+        self._ngram_remove = ngram_remove
         self._ngram_length = ngram_length
 
     def _get_column(self, columns_to_group):
@@ -21,7 +22,7 @@ class TextPack():
             return 'textpackGrouper'
 
     def _ngrams_analyzer(self, string):
-        string = re.sub(r'[,-./]', r'', string)
+        string = re.sub(self._ngram_remove, r'', string)
         ngrams = zip(*[string[i:] for i in range(self._ngram_length)])
         return [''.join(ngram) for ngram in ngrams]
 
@@ -53,7 +54,7 @@ class TextPack():
             self._add_vals_to_lookup(row, row, col)
 
     def build_group_lookup(self):
-        vals = self.df[self._column].unique()
+        vals = self.df[self._column].unique().astype('U')
 
         print('Building the TF-IDF, Cosine & Coord matrices...')
         coord_matrix = self._get_cosine_matrix(vals).tocoo()
@@ -82,17 +83,17 @@ class TextPack():
         self._filter_df_for_export().to_csv(export_path)
 
 
-def read_json(json_path, columns_to_group, match_threshold=0.75, ngram_length=3):
-    return TextPack(pd.read_json(json_path), columns_to_group, match_threshold, ngram_length)
+def read_json(json_path, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
+    return TextPack(pd.read_json(json_path), columns_to_group, match_threshold, ngram_remove, ngram_length)
 
 
-def read_excel(excel_path, columns_to_group, sheet_name=None, match_threshold=0.75, ngram_length=3):
-    return TextPack(pd.read_excel(excel_path), sheet_name, columns_to_group, match_threshold, ngram_length)
+def read_excel(excel_path, columns_to_group, sheet_name=None, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
+    return TextPack(pd.read_excel(excel_path), sheet_name, columns_to_group, match_threshold, ngram_remove, ngram_length)
 
 
-def read_df(df, columns_to_group, match_threshold=0.75, ngram_length=3):
-    return TextPack(df, columns_to_group, match_threshold, ngram_length)
+def read_df(df, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
+    return TextPack(df, columns_to_group, match_threshold, ngram_remove, ngram_length)
 
 
-def read_csv(csv_path, columns_to_group, match_threshold=0.75, ngram_length=3):
-    return TextPack(pd.read_csv(csv_path), columns_to_group, match_threshold, ngram_length)
+def read_csv(csv_path, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
+    return TextPack(pd.read_csv(csv_path), columns_to_group, match_threshold, ngram_remove, ngram_length)
