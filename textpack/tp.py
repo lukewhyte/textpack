@@ -53,6 +53,15 @@ class TextPack():
         else:
             self._add_vals_to_lookup(row, row, col)
 
+    def set_ngram_remove(self, ngram_remove):
+        self._ngram_remove = ngram_remove
+
+    def set_ngram_length(self, ngram_length):
+        self._ngram_length = ngram_length
+
+    def set_match_threshold(self, match_threshold):
+        self._match_threshold = match_threshold
+
     def build_group_lookup(self):
         vals = self.df[self._column].unique().astype('U')
 
@@ -68,9 +77,9 @@ class TextPack():
         print('Adding grouped columns to data frame...')
         self.df[column_name] = self.df[self._column].map(self.group_lookup).fillna(self.df[self._column])
 
-    def run(self):
+    def run(self, column_name='Group'):
         self.build_group_lookup()
-        self.add_grouped_column_to_data()
+        self.add_grouped_column_to_data(column_name)
         print('Ready for export')
 
     def _filter_df_for_export(self):
@@ -89,10 +98,6 @@ def read_json(json_path, columns_to_group, match_threshold=0.75, ngram_remove=r'
 
 def read_excel(excel_path, columns_to_group, sheet_name=None, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
     return TextPack(pd.read_excel(excel_path), sheet_name, columns_to_group, match_threshold, ngram_remove, ngram_length)
-
-
-def read_df(df, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
-    return TextPack(df, columns_to_group, match_threshold, ngram_remove, ngram_length)
 
 
 def read_csv(csv_path, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
