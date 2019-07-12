@@ -1,6 +1,6 @@
 ## What is this?
 
-TextPack efficiently groups similar values in large (or small) datasets. Under the hood, it builds a document term matrix of n-grams assigned a TF-IDF score. It then uses matrix multipcation to quickly calculate the cosine similarity between these values. For a technical explination, [check out this blog post](https://medium.com/p/2493b3ce6d8d).
+TextPack efficiently groups similar values in large (or small) datasets. Under the hood, it builds a document term matrix of n-grams assigned a TF-IDF score. It then uses matrix multiplication to quickly calculate the cosine similarity between these values. For a technical explination, [I wrote a blog post](https://medium.com/p/2493b3ce6d8d).
 
 ## Why do I care?
 
@@ -14,7 +14,7 @@ If you're a analyst, journalist, data scientist or similar and ever had a spread
 |   4 | Whyte, Luke       |
 |   5 | Doe, John Francis |
 
-And you've wanted to perform some kind of analysis – perhaps in a Pivot Table or a Group By statement – but are hindered by the deviations in spelling and formatting, you can use TextPack to comb hundreds or thousands of cells in seconds and create a third column like this:
+And you've wanted to perform some kind of analysis – perhaps in a Pivot Table or a Group By statement – but are hindered by the deviations in spelling and formatting, you can use TextPack to comb hundreds to thousands of cells in seconds and create a third column like this:
 
 | row |     fullname      |  name_groups  |
 |-----|-------------------|---------------|
@@ -24,7 +24,7 @@ And you've wanted to perform some kind of analysis – perhaps in a Pivot Table 
 |   4 | Whyte, Luke       | Whyte Luke    |
 |   5 | Doe, John Francis | Doe John F    |
 
-Yay! 
+We can then group by `name_groups` and perform our analysis. 
 
 You can also group across multiple columns. For instance, given the following:
 
@@ -68,7 +68,7 @@ from textpack import tp
 tp.Textpack(df, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3)
 ```
 
-The TextPack class accepts the following parameters:
+Class parameters:
 
  - `df` (required): A Pandas' DataFrame containing the dataset to group
  - `columns_to_group` (required): A list or string matching the column headers you'd like to parse and group
@@ -76,7 +76,7 @@ The TextPack class accepts the following parameters:
  - `ngram_remove` (optional): A regular expression you can use to filter characters out of your strings when we build our n-grams
  - `ngram_length` (optional): The length of our n-grams. This can be used in tandem with `match_threshold` to find the sweet spot for grouping your dataset. If TextPack is running slow, it's usually a sign to consider raising the n-gram length.
 
-TextPack can also be instantiated using the following helpers, each of which is just a wrapper that converts a data format to a Pandas DataFrame and then passes it to TextPack. Thus, they all require a file path and `columns_to_group`, and take the same three optional parameters as `TextPack`.
+TextPack can also be instantiated using the following helpers, each of which is just a wrapper that converts a data format to a Pandas DataFrame and then passes it to TextPack. Thus, they all require a file path, `columns_to_group` and take the same three optional parameters as callin `TextPack` directly.
 
 ```
 tp.read_csv(csv_path, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3)
@@ -95,7 +95,7 @@ tp.read_json(json_path, columns_to_group, match_threshold=0.75, ngram_remove=r'[
 TextPack objects have the following public properties:
 
  - `df`: The dataframe used internally by TextPack – manipulate as you see fit
- - `group_lookup`: A Python dictionary built by `build_group_lookup` and then used by `add_grouped_column_to_data` to lookup each value that has a group. It looks a bit like this: 
+ - `group_lookup`: A Python dictionary built by `build_group_lookup` and then used by `add_grouped_column_to_data` to lookup each value that has a group. It looks like this: 
 
 ```
 { 
@@ -135,4 +135,4 @@ cars.export_csv('./cars-grouped.csv')
 
 As mentioned above, under the hood, we're building a document term matrix of n-grams assigned a TF-IDF score. We're then using matrix multipcation to quickly calculate the cosine similarity between these values.
 
-I wrote [this detailed blog post](https://medium.com/p/2493b3ce6d8d) to explian how TextPack works behind the scene and why it is super fast. Check it out!
+I wrote [this detailed blog post](https://medium.com/p/2493b3ce6d8d) to explian how TextPack works behind the scene and why it's fast. Check it out!
