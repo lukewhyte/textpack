@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="textpack",
-    version="0.0.3",
+    version="0.0.5",
     author="Luke Whyte",
     author_email="lukeawhyte@gmail.com",
     description="Quickly identify and group similar text strings in a large dataset",
