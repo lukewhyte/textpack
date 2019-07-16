@@ -1,6 +1,6 @@
 ## What is this?
 
-TextPack efficiently groups similar values in large (or small) datasets. Under the hood, it builds a document term matrix of n-grams assigned a TF-IDF score. It then uses matrix multiplication to quickly calculate the cosine similarity between these values. For a technical explination, [I wrote a blog post](https://medium.com/p/2493b3ce6d8d).
+TextPack groups similar values in large (or small) datasets. Under the hood, it builds a document term matrix of n-grams assigned a TF-IDF score. It then uses matrix multiplication to quickly calculate the cosine similarity between these values. For a technical explination, [I wrote a blog post](https://medium.com/p/2493b3ce6d8d).
 
 ## Why do I care?
 
