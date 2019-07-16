@@ -135,4 +135,4 @@ cars.export_csv('./cars-grouped.csv')
 
 As mentioned above, under the hood, we're building a document term matrix of n-grams assigned a TF-IDF score. We're then using matrix multipcation to quickly calculate the cosine similarity between these values.
 
-I wrote [this detailed blog post](https://medium.com/p/2493b3ce6d8d) to explian how TextPack works behind the scene and why it's fast. Check it out!
+I wrote [this blog post](https://medium.com/p/2493b3ce6d8d) to explian how TextPack works behind the scene. Check it out!
