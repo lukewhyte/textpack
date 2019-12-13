@@ -63,7 +63,7 @@ from textpack import tp
 #### Instantiate TextPack
 
 ```
-tp.Textpack(df, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3)
+tp.TextPack(df, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3)
 ```
 
 Class parameters:
