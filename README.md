@@ -129,6 +129,12 @@ cars.run()
 cars.export_csv('./cars-grouped.csv')
 ```
 
+## Troubleshooting
+
+#### I'm getting a Memory Error!
+
+Some users have triggered memory errors when parsing big data sets. [This StackOverflow post](https://stackoverflow.com/questions/57507832/unable-to-allocate-array-with-shape-and-data-type) has proved useful.
+
 ## How does it work?
 
 As mentioned above, under the hood, we're building a document term matrix of n-grams assigned a TF-IDF score. We're then using matrix multipcation to quickly calculate the cosine similarity between these values.
