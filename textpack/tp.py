@@ -91,7 +91,8 @@ class TextPack():
     def export_csv(self, export_path=None):
         return self._filter_df_for_export().to_csv(export_path)
     
-    def to_DataFrame(self):
+    #Added to return as a DataFrame
+    def to_DF(self):
         return self._filter_df_for_export()
 
 
