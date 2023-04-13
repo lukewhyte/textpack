@@ -90,6 +90,9 @@ class TextPack():
 
     def export_csv(self, export_path=None):
         return self._filter_df_for_export().to_csv(export_path)
+    
+    def to_DataFrame(self):
+        return self._filter_df_for_export()
 
 
 def read_json(json_path, columns_to_group, match_threshold=0.75, ngram_remove=r'[,-./]', ngram_length=3):
