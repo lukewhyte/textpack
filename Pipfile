@@ -9,7 +9,7 @@ pylint = "*"
 
 [packages]
 pandas = "*"
-sklearn = "*"
+scikit-learn = "*"
 scipy = "*"
 numpy = "*"
 cython = "*"
